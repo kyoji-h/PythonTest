@@ -18,16 +18,21 @@ class Neuron:
     # ニューロンからの出力値取得処理
     def getOutput(self):
         self.output = sigmoid(self.input_sum)
-        #self.output = self.input_sum
+        # self.output = self.input_sum
         return self.output
 
 # ニューラルネットワーククラス
 class NeuralNetwork:
     neuron = Neuron()
+    w = [0.5, 0.5, 0.5]
 
     def commit(self, input_data_list):
+        cnt = 0
         for data in input_data_list:
-            self.neuron.setInput(data)
+            w = dict(enumerate(self.w)).get(cnt, -1)
+            if not w == -1:
+                self.neuron.setInput(data * w)
+            cnt = cnt + 1
         return self.neuron.getOutput()
 
 neural_network = NeuralNetwork()

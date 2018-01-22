@@ -16,6 +16,7 @@ class Neuron:
     def setInput(self, value):
         self.input_sum += value
 
+    # 加算されたニューロンへの入力値の取得処理
     def getInput(self):
         return self.input_sum
 
@@ -24,6 +25,7 @@ class Neuron:
         self.output = sigmoid(self.input_sum)
         return self.output
 
+    # ニューロンの初期化処理
     def reset(self):
         self.input_sum = 0.0
         self.output = 0.0
@@ -43,11 +45,17 @@ class NeuralNetwork:
     # 中間層から出力層への重み付け
     w_mo = [0.121, -0.4996, 0.200]
 
+    # 入力層の取得
+    def getInputLayerDetail(self):
+        return {'i_layer':self.input_layer}
+
+    # 中間層の入力値、出力値の取得
     def getMiddleLayerDetail(self):
         middle_input = [self.middle_layer[0].getInput(), self.middle_layer[1].getInput(), self.middle_layer[2]]
         middle_output = [self.middle_layer[0].getOutput(), self.middle_layer[1].getOutput(), self.middle_layer[2]]
-        return {'middle_input':middle_input, 'middle_output':middle_output}
+        return {'m_layer_input':middle_input, 'm_layer_output':middle_output}
 
+    # 出力層の入力値、出力値の取得
     def getOutputLayerDetail(self):
         o_layer_input = self.output_layer.getInput()
         o_layer_output = self.output_layer.getOutput()
@@ -63,7 +71,7 @@ class NeuralNetwork:
         self.middle_layer[1].reset()
         self.output_layer.reset()
 
-        print(self.input_layer)
+        print(self.getInputLayerDetail())
 
         cnt = 0
         for input_data in self.input_layer:
@@ -97,20 +105,39 @@ class NeuralNetwork:
         return self.output_layer.getOutput()
 
 
-
+# 緯度、経度の基準点
 base_latitude = 34.5
 base_longitude = 137.5
 
-# データファイルの読込
+# 読み込んだ緯度経度データのリスト
 trial_data = []
+
+# 緯度経度データファイルの読込
 file = open('trial-data.txt', 'r')
 for line in file:
     line_arr = line.rstrip().split(',')
     trial_data.append([float(line_arr[0]) - base_latitude, float(line_arr[1]) - base_longitude])
 file.close()
 
+print(trial_data)
+
 # ニューラルネットワークのインスタンス
 neural_network = NeuralNetwork()
 
-output = neural_network.commit([3,5])
-print(output)
+position_tokyo = [[], []]
+position_kanagawa = [[], []]
+for data in trial_data:
+    if neural_network.commit(data) < 0.565:
+        position_tokyo[0].append(data[1] + base_longitude)
+        position_tokyo[1].append(data[0] + base_latitude)
+    else:
+        position_kanagawa[0].append(data[1] + base_longitude)
+        position_kanagawa[1].append(data[0] + base_latitude)
+
+# プロット
+plt.scatter(position_tokyo[0], position_tokyo[1], c="red", label="Tokyo", marker="+")
+plt.scatter(position_kanagawa[0], position_kanagawa[1], c="blue", label="Kanagawa", marker="+")
+
+plt.legend()
+plt.show()
+
