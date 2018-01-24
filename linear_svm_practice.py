@@ -19,6 +19,6 @@ clf = svm.LinearSVC()
 # サポートベクターマシーンによる訓練
 clf.fit(iris_data.data, iris_data.target)
 
-# 検証用データから品質を判定
+# 検証用データから品質を推定
 verification = clf.predict([[3,5,1,1]])
 print(verification)
